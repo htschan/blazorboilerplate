@@ -50,6 +50,18 @@ namespace BlazorBoilerplate.Storage
          var migrationsAssembly = typeof(T).GetTypeInfo().Assembly.GetName().Name;
 
          var connectionString = configuration.GetConnectionString("DefaultConnection");
+         if (Environment.OSVersion.Platform == PlatformID.Unix)
+         {
+            var indocker = Environment.GetEnvironmentVariable("INDOCKER");
+            if (indocker != null && indocker.ToLower().Equals("true"))
+            {
+               connectionString = configuration.GetConnectionString("MssqlDockerInside");
+            }
+            else
+            {
+               connectionString = configuration.GetConnectionString("MssqlDocker");
+            }
+         }
 
          if (string.IsNullOrEmpty(connectionString))
             throw new ArgumentNullException("The DefaultConnection was not found.");
@@ -73,10 +85,10 @@ namespace BlazorBoilerplate.Storage
           {
              options.ConfigureDbContext = x => GetDbContextOptions<ApplicationDbContext>(x, configuration);
 
-               // this enables automatic token cleanup. this is optional.
-               options.EnableTokenCleanup = true;
+             // this enables automatic token cleanup. this is optional.
+             options.EnableTokenCleanup = true;
 
              options.TokenCleanupInterval = 3600; //In Seconds 1 hour
-            });
+          });
    }
 }
