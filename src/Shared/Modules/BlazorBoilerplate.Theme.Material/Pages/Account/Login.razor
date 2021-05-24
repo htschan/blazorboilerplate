@@ -95,13 +95,6 @@
                                         <MatButton Style="min-width: 140px;" OnClick="@(() => SignInWith(provider))" Raised="true"><img height="18" src="/images/@(provider.AuthenticationScheme.ToLower()).svg" /></MatButton>
                                     </div>
                                     break;
-                                case "Twitter":
-                                case "Microsoft":
-                                case "Apple":
-                                    <div class="form-group">
-                                        <MatButton Style="min-width: 140px;" OnClick="@(() => SignInWith(provider))" Raised="true"><img height="18" src="/images/@(provider.AuthenticationScheme.ToLower()).svg" />&nbsp;@provider.DisplayName</MatButton>
-                                    </div>
-                                    break;
                                 default:
                                     <div class="form-group">
                                         <MatButton Style="min-width: 140px;" OnClick="@(() => SignInWith(provider))" Raised="true" Label="@provider.DisplayName" />

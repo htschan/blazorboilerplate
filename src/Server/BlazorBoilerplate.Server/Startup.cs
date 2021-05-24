@@ -28,7 +28,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
@@ -214,66 +213,6 @@ namespace BlazorBoilerplate.Server
             });
          }
 
-         if (Convert.ToBoolean(Configuration["ExternalAuthProviders:Twitter:Enabled"] ?? "false"))
-         {
-            // You must first create an app with Twitter and add its key and Secret to your user-secrets.
-            // https://apps.twitter.com/
-            // https://developer.twitter.com/en/docs/basics/authentication/api-reference/access_token
-            authBuilder.AddTwitter(options =>
-            {
-               options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-
-               options.ConsumerKey = Configuration["ExternalAuthProviders:Twitter:ConsumerKey"];
-               options.ConsumerSecret = Configuration["ExternalAuthProviders:Twitter:ConsumerSecret"];
-
-               // http://stackoverflow.com/questions/22627083/can-we-get-email-id-from-twitter-oauth-api/32852370#32852370
-               // http://stackoverflow.com/questions/36330675/get-users-email-from-twitter-api-for-external-login-authentication-asp-net-mvc?lq=1
-               options.RetrieveUserDetails = true;
-               options.SaveTokens = true;
-               options.ClaimActions.MapJsonKey("urn:twitter:profilepicture", "profile_image_url", ClaimTypes.Uri);
-               options.Events = new TwitterEvents()
-               {
-                  OnRemoteFailure = HandleOnRemoteFailure
-               };
-            });
-         }
-
-         //https://github.com/xamarin/Essentials/blob/master/Samples/Sample.Server.WebAuthenticator/Startup.cs
-         if (Convert.ToBoolean(Configuration["ExternalAuthProviders:Apple:Enabled"] ?? "false"))
-         {
-            authBuilder.AddApple(options =>
-            {
-               options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-
-               options.ClientId = Configuration["ExternalAuthProviders:Apple:ClientId"];
-               options.KeyId = Configuration["ExternalAuthProviders:Apple:KeyId"];
-               options.TeamId = Configuration["ExternalAuthProviders:Apple:TeamId"];
-
-               options.UsePrivateKey(keyId
-                      => _environment.ContentRootFileProvider.GetFileInfo($"AuthKey_{keyId}.p8"));
-               options.SaveTokens = true;
-            });
-         }
-
-         // You must first create an app with Microsoft Account and add its ID and Secret to your user-secrets.
-         // https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app
-         if (Convert.ToBoolean(Configuration["ExternalAuthProviders:Microsoft:Enabled"] ?? "false"))
-         {
-            authBuilder.AddMicrosoftAccount(options =>
-            {
-               options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-
-               options.ClientId = Configuration["ExternalAuthProviders:Microsoft:ClientId"];
-               options.ClientSecret = Configuration["ExternalAuthProviders:Microsoft:ClientSecret"];
-
-               options.SaveTokens = true;
-               options.Scope.Add("offline_access");
-               options.Events = new OAuthEvents()
-               {
-                  OnRemoteFailure = HandleOnRemoteFailure
-               };
-            });
-         }
          #endregion
 
          #region Authorization
