@@ -52,19 +52,15 @@ namespace BlazorBoilerplate.Storage
          var connectionString = configuration.GetConnectionString("DefaultConnection");
          if (Environment.OSVersion.Platform == PlatformID.Unix)
          {
-            var indocker = Environment.GetEnvironmentVariable("INDOCKER");
-            if (indocker != null && indocker.ToLower().Equals("true"))
-            {
-               connectionString = configuration.GetConnectionString("MssqlDockerInside");
-            }
-            else
-            {
-               connectionString = configuration.GetConnectionString("MssqlDocker");
-            }
+            connectionString = configuration.GetConnectionString("BlazorBoilerplate");
+            if (string.IsNullOrEmpty(connectionString))
+               throw new ArgumentNullException("The BlazorBoilerplate connection string was not found.");
          }
-
-         if (string.IsNullOrEmpty(connectionString))
-            throw new ArgumentNullException("The DefaultConnection was not found.");
+         else
+         {
+            if (string.IsNullOrEmpty(connectionString))
+               throw new ArgumentNullException("The DefaultConnection was not found.");
+         }
 
          if (!connectionString.ToLower().Contains("multipleactiveresultsets=true"))
             throw new ArgumentException("When Sql Server is in use the DefaultConnection must contain: MultipleActiveResultSets=true");
