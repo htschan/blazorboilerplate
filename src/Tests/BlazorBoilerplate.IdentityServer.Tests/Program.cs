@@ -3,7 +3,6 @@ using IdentityModel.Client;
 using IdentityModel.OidcClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -27,13 +26,6 @@ namespace BlazorBoilerplate.Server.Tests.Oidc
             .AddLogging()
             .BuildServiceProvider();
 
-            var serilog = new LoggerConfiguration()
-                .MinimumLevel.Error()
-                .Enrich.FromLogContext()
-                .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}")
-                .CreateLogger();
-
-            serviceProvider.GetService<ILoggerFactory>().AddSerilog(serilog);
 
             await Login();
         }
@@ -60,7 +52,6 @@ namespace BlazorBoilerplate.Server.Tests.Oidc
             options.Policy.Discovery.ValidateIssuerName = false;
             options.BackchannelHandler = new HttpClientHandler() { ServerCertificateCustomValidationCallback = (message, certificate, chain, sslPolicyErrors) => true };
 
-            options.LoggerFactory.AddSerilog(serviceProvider.GetService<Serilog.ILogger>());
 
             _oidcClient = new OidcClient(options);
             var result = await _oidcClient.LoginAsync(new LoginRequest());

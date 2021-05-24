@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog.Extensions.Logging;
 using System;
 
 namespace BlazorBoilerplate.Server.Factories
@@ -26,7 +25,7 @@ namespace BlazorBoilerplate.Server.Factories
                 })
                 .AddTransient<ApiResponseExceptionAspect>()
                 .AddTransient<LogExceptionAspect>()
-                .AddSingleton<ILoggerFactory>(services => new SerilogLoggerFactory())
+                .AddSingleton<ILoggerFactory>(services => new LoggerFactory())
                 .BuildServiceProvider();
         }
 

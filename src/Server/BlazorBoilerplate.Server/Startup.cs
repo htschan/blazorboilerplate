@@ -39,8 +39,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,7 +47,6 @@ using Newtonsoft.Json.Serialization;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation.Processors.Security;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -57,7 +54,6 @@ using System.Linq;
 using System.Net.Http; //ServerSideBlazor
 using System.Reflection;
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using static IdentityServer4.IdentityServerConstants;
 using static Microsoft.AspNetCore.Http.StatusCodes;
@@ -156,18 +152,18 @@ namespace BlazorBoilerplate.Server
             {
                OnMessageReceived = context =>
                   {
-                    var accessToken = context.Request.Query["access_token"];
+                     var accessToken = context.Request.Query["access_token"];
 
-                       // If the request is for our hub...
-                       var path = context.HttpContext.Request.Path;
-                    if (!string.IsNullOrEmpty(accessToken) &&
-                           (path.StartsWithSegments("/chathub")))
-                    {
-                          // Read the token out of the query string
-                          context.Token = accessToken;
-                    }
-                    return Task.CompletedTask;
-                 }
+                     // If the request is for our hub...
+                     var path = context.HttpContext.Request.Path;
+                     if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/chathub")))
+                     {
+                        // Read the token out of the query string
+                        context.Token = accessToken;
+                     }
+                     return Task.CompletedTask;
+                  }
             };
          });
 
@@ -184,7 +180,7 @@ namespace BlazorBoilerplate.Server
                options.ClientSecret = Configuration["ExternalAuthProviders:Google:ClientSecret"];
 
                options.AuthorizationEndpoint += "?prompt=consent"; // Hack so we always get a refresh token, it only comes on the first authorization response
-                   options.AccessType = "offline";
+               options.AccessType = "offline";
                options.SaveTokens = true;
                options.Events = new OAuthEvents()
                {
@@ -230,9 +226,9 @@ namespace BlazorBoilerplate.Server
                options.ConsumerKey = Configuration["ExternalAuthProviders:Twitter:ConsumerKey"];
                options.ConsumerSecret = Configuration["ExternalAuthProviders:Twitter:ConsumerSecret"];
 
-                   // http://stackoverflow.com/questions/22627083/can-we-get-email-id-from-twitter-oauth-api/32852370#32852370
-                   // http://stackoverflow.com/questions/36330675/get-users-email-from-twitter-api-for-external-login-authentication-asp-net-mvc?lq=1
-                   options.RetrieveUserDetails = true;
+               // http://stackoverflow.com/questions/22627083/can-we-get-email-id-from-twitter-oauth-api/32852370#32852370
+               // http://stackoverflow.com/questions/36330675/get-users-email-from-twitter-api-for-external-login-authentication-asp-net-mvc?lq=1
+               options.RetrieveUserDetails = true;
                options.SaveTokens = true;
                options.ClaimActions.MapJsonKey("urn:twitter:profilepicture", "profile_image_url", ClaimTypes.Uri);
                options.Events = new TwitterEvents()
@@ -290,21 +286,21 @@ namespace BlazorBoilerplate.Server
 
          services.Configure<IdentityOptions>(options =>
          {
-               // Password settings
-               options.Password.RequireDigit = RequireDigit;
+            // Password settings
+            options.Password.RequireDigit = RequireDigit;
             options.Password.RequiredLength = RequiredLength;
             options.Password.RequireNonAlphanumeric = RequireNonAlphanumeric;
             options.Password.RequireUppercase = RequireUppercase;
             options.Password.RequireLowercase = RequireLowercase;
-               //options.Password.RequiredUniqueChars = 6;
+            //options.Password.RequiredUniqueChars = 6;
 
-               // Lockout settings
-               options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+            // Lockout settings
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
             options.Lockout.MaxFailedAccessAttempts = 10;
             options.Lockout.AllowedForNewUsers = true;
 
-               // Require Confirmed Email User settings
-               if (Convert.ToBoolean(Configuration[$"{projectName}:RequireConfirmedEmail"] ?? "false"))
+            // Require Confirmed Email User settings
+            if (Convert.ToBoolean(Configuration[$"{projectName}:RequireConfirmedEmail"] ?? "false"))
             {
                options.User.RequireUniqueEmail = true;
                options.SignIn.RequireConfirmedEmail = true;
@@ -318,12 +314,12 @@ namespace BlazorBoilerplate.Server
          //https://docs.microsoft.com/en-us/aspnet/core/security/gdpr
          services.Configure<CookiePolicyOptions>(options =>
          {
-               // This lambda determines whether user consent for non-essential
-               // cookies is needed for a given request.
-               options.CheckConsentNeeded = context => false; //consent not required
-                                                              // requires using Microsoft.AspNetCore.Http;
-                                                              //options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
+            // This lambda determines whether user consent for non-essential
+            // cookies is needed for a given request.
+            options.CheckConsentNeeded = context => false; //consent not required
+                                                           // requires using Microsoft.AspNetCore.Http;
+                                                           //options.MinimumSameSitePolicy = SameSiteMode.None;
+         });
 
          //services.ConfigureExternalCookie(options =>
          // {
@@ -338,53 +334,53 @@ namespace BlazorBoilerplate.Server
             options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
             options.LoginPath = Constants.Settings.LoginPath;
-               //options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-               // ReturnUrlParameter requires
-               //using Microsoft.AspNetCore.Authentication.Cookies;
-               options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+            //options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+            // ReturnUrlParameter requires
+            //using Microsoft.AspNetCore.Authentication.Cookies;
+            options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
             options.SlidingExpiration = true;
 
-               // Suppress redirect on API URLs in ASP.NET Core -> https://stackoverflow.com/a/56384729/54159
-               options.Events = new CookieAuthenticationEvents()
+            // Suppress redirect on API URLs in ASP.NET Core -> https://stackoverflow.com/a/56384729/54159
+            options.Events = new CookieAuthenticationEvents()
             {
                OnRedirectToAccessDenied = context =>
                   {
-                    if (context.Request.Path.StartsWithSegments("/api"))
-                    {
-                       context.Response.StatusCode = Status403Forbidden;
-                    }
+                     if (context.Request.Path.StartsWithSegments("/api"))
+                     {
+                        context.Response.StatusCode = Status403Forbidden;
+                     }
 
-                    return Task.CompletedTask;
-                 },
+                     return Task.CompletedTask;
+                  },
                OnRedirectToLogin = context =>
                   {
-                    context.Response.StatusCode = Status401Unauthorized;
-                    return Task.CompletedTask;
-                 }
+                     context.Response.StatusCode = Status401Unauthorized;
+                     return Task.CompletedTask;
+                  }
             };
          });
          #endregion
 
          services.AddMvc().AddNewtonsoftJson(opt =>
          {
-               // Set Breeze defaults for entity serialization
-               var ss = JsonSerializationFns.UpdateWithDefaults(opt.SerializerSettings);
+            // Set Breeze defaults for entity serialization
+            var ss = JsonSerializationFns.UpdateWithDefaults(opt.SerializerSettings);
             if (ss.ContractResolver is DefaultContractResolver resolver)
             {
                resolver.NamingStrategy = null;  // remove json camelCasing; names are converted on the client.
-               }
+            }
             if (_environment.IsDevelopment())
             {
                ss.Formatting = Newtonsoft.Json.Formatting.Indented; // format JSON for debugging
-               }
+            }
          })   // Add Breeze exception filter to send errors back to the client
          .AddMvcOptions(o => { o.Filters.Add(new GlobalExceptionFilter()); })
          .AddViewLocalization().AddDataAnnotationsLocalization(options =>
          {
             options.DataAnnotationLocalizerProvider = (type, factory) =>
                {
-                return factory.Create(typeof(Global));
-             };
+                  return factory.Create(typeof(Global));
+               };
          }).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LocalizationRecordValidator>());
 
          services.AddServerSideBlazor().AddCircuitOptions(o =>
@@ -410,7 +406,7 @@ namespace BlazorBoilerplate.Server
                   Type = OpenApiSecuritySchemeType.OAuth2,
                   Description = "Local Identity Server",
                   OpenIdConnectUrl = $"{authAuthority}/.well-known/openid-configuration", //not working
-                      Flow = OpenApiOAuth2Flow.AccessCode,
+                  Flow = OpenApiOAuth2Flow.AccessCode,
                   Flows = new OpenApiOAuthFlows()
                   {
                      AuthorizationCode = new OpenApiOAuthFlow()
@@ -426,8 +422,8 @@ namespace BlazorBoilerplate.Server
                }); ;
 
                document.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("bearer"));
-                   //      new OperationSecurityScopeProcessor("bearer"));
-                });
+               //      new OperationSecurityScopeProcessor("bearer"));
+            });
 
          services.AddScoped<IUserSession, UserSession>();
 
@@ -463,15 +459,15 @@ namespace BlazorBoilerplate.Server
          // {
          services.AddScoped(s =>
          {
-               // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
-               var navigationManager = s.GetRequiredService<NavigationManager>();
+            // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
+            var navigationManager = s.GetRequiredService<NavigationManager>();
             var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
             var cookies = httpContextAccessor.HttpContext.Request.Cookies;
             var httpClientHandler = new HttpClientHandler() { UseCookies = false };
             if (_environment.IsDevelopment())
             {
-                  // Return 'true' to allow certificates that are untrusted/invalid
-                  httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+               // Return 'true' to allow certificates that are untrusted/invalid
+               httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
             }
             var client = new HttpClient(httpClientHandler);
             if (cookies.Any())
@@ -496,25 +492,16 @@ namespace BlazorBoilerplate.Server
          services.AddScoped<IApiClient, ApiClient>();
 
          // Authentication providers
-         Log.Logger.Debug("Removing AuthenticationStateProvider...");
          var serviceDescriptor = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(AuthenticationStateProvider));
          if (serviceDescriptor != null)
          {
             services.Remove(serviceDescriptor);
          }
 
-         Log.Logger.Debug("Adding AuthenticationStateProvider...");
          services.AddScoped<AuthenticationStateProvider, IdentityAuthenticationStateProvider>();
          /**********************/
 
          services.AddModules();
-
-         if (Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Debug))
-         {
-            Log.Logger.Debug($"Total Services Registered: {services.Count}");
-            foreach (var service in services)
-               Log.Logger.Debug($"\n\tService: {service.ServiceType.FullName}\n\tLifetime: {service.Lifetime}\n\tInstance: {service.ImplementationType?.FullName}");
-         }
       }
 
       // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -587,8 +574,8 @@ namespace BlazorBoilerplate.Server
             endpoints.MapBlazorHub();
             endpoints.MapFallbackToPage("/_Index");
 
-               // new SignalR endpoint routing setup
-               endpoints.MapHub<Hubs.ChatHub>("/chathub");
+            // new SignalR endpoint routing setup
+            endpoints.MapHub<Hubs.ChatHub>("/chathub");
          });
       }
 
@@ -600,8 +587,6 @@ namespace BlazorBoilerplate.Server
          if (context.Properties != null)
             foreach (var pair in context.Properties.Items)
                msg = $"{msg}{Environment.NewLine}-{pair.Key}={pair.Value}";
-
-         Log.Logger.Error($"External authentication error: {msg}");
 
          context.Response.Redirect($"/externalauth/error/{ErrorEnum.ExternalAuthError}");
 
